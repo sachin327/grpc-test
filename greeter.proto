@@ -1,0 +1,30 @@
+// greeter.proto
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package greeter;
+
+// The greeter service definition.
+service Greeter {
+  // Sends a greeting
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+
+  // Gets the server's current time
+  rpc GetServerTime (google.protobuf.Empty) returns (TimeReply) {}
+}
+
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message HelloReply {
+  string message = 1;
+}
+
+// The response message for the server's time.
+message TimeReply {
+    string current_time = 1;
+}
