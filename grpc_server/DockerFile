@@ -1,0 +1,27 @@
+# Use an official Python runtime as a parent image
+FROM python:3.9-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the requirements file into the container
+COPY requirements.txt .
+
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application code into the container
+COPY . .
+
+# Generate the gRPC code from the .proto file
+# This runs inside the container during the build
+RUN python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. greeter.proto
+
+# The port the server will run on inside the container
+# Cloud Run will automatically map external traffic to this port.
+EXPOSE 8080
+
+# Define the command to run your app
+# Use gunicorn for a production-ready server, but for simplicity, we'll use python directly.
+# NOTE: In a real production app, you might use gunicorn with a gRPC worker.
+CMD ["python", "grpc_server.py"]
