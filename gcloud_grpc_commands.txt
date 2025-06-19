@@ -1,0 +1,39 @@
+
+
+gcloud config set project chrome-ranger-463316-f9
+
+# Navigate into the server directory
+cd server
+
+# 1. BUILD: Submit the build using your new config file.
+# This command tells Cloud Build to use the recipe we just wrote.
+gcloud builds submit ./server --config ./server/cloudbuild.server.yaml
+
+# 2. DEPLOY: Deploy the image that was just pushed to the registry.
+# This command is unchanged but will now work correctly.
+gcloud run deploy grpc-greeter-server \
+  --image gcr.io/chrome-ranger-463316-f9/grpc-greeter-server:latest \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --use-http2
+  
+  
+# Go back and into the client directory
+cd ../client
+
+# Set the environment variable with the server URL
+export GRPC_SERVER_URL="grpc-greeter-server-527560349556.us-central1.run.app:443"
+
+# 1. BUILD: Submit the client build using its config file.
+gcloud builds submit ./client --config ./client/cloudbuild.client.yaml
+
+# 2. DEPLOY: Deploy the client image.
+gcloud run deploy streamlit-greeter-client \
+  --image gcr.io/chrome-ranger-463316-f9/streamlit-greeter-client:latest \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --set-env-vars="GRPC_SERVER_URL=$GRPC_SERVER_URL"
+  
+gcloud cloud-shell scp cloud-shell-vm:~/grpc-test.zip .
